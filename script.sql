@@ -2,16 +2,7 @@
 -- Rodar o arquivo INTEIRO como script:
 --   DBeaver: Alt+X (Executar script SQL)   |   SQL Developer: F5 (Executar script)
 -- Nao use Ctrl+Enter, que executa um comando so e junta as linhas seguidas.
-
--- apaga as tabelas do NexRain se ja existirem (pode rodar o script quantas vezes quiser)
-BEGIN
-    FOR t IN (SELECT TABLE_NAME FROM USER_TABLES
-              WHERE TABLE_NAME IN ('T_FIAP_ROTA_NR', 'T_FIAP_ALERTA_NR', 'T_FIAP_OCORRENCIA_NR',
-                                   'T_FIAP_CAMERA_NR', 'T_FIAP_REGIAO_NR')) LOOP
-        EXECUTE IMMEDIATE 'DROP TABLE ' || t.TABLE_NAME || ' CASCADE CONSTRAINTS';
-    END LOOP;
-END;
-/
+-- Se as tabelas ja existirem (erro ORA-00955), rode antes o arquivo drop.sql.
 
 -- bairros monitorados
 CREATE TABLE T_FIAP_REGIAO_NR (

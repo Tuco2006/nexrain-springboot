@@ -44,6 +44,8 @@ Rodar o arquivo `script.sql` inteiro **como script** conectado ao Oracle da FIAP
 (`oracle.fiap.com.br:1521:orcl`). Ele cria as 5 tabelas e já cadastra 12 regiões de São Paulo, 8 câmeras,
 4 ocorrências e 2 alertas de exemplo.
 
+Para recriar o banco do zero, rode antes o `drop.sql` (que apaga as tabelas) e depois o `script.sql` de novo.
+
 - 2 Usuário, senha e chave da OpenAI
 
 Essas informações não ficam no código. Para rodar na sua máquina, crie o arquivo
