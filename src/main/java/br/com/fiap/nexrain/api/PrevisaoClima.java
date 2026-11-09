@@ -90,6 +90,10 @@ public class PrevisaoClima {
         return fonte;
     }
 
+    public void setFonte(String fonte) {
+        this.fonte = fonte;
+    }
+
     public List<PrevisaoHora> getProximasHoras() {
         return proximasHoras;
     }
@@ -135,7 +139,7 @@ public class PrevisaoClima {
         simulada.setCodigoTempo(95);
         simulada.precipitacaoAtual = Math.round(intensidade * 0.6 * 10) / 10.0;
         simulada.simulado = true;
-        simulada.fonte = "Open-Meteo + cenário simulado";
+        simulada.fonte = fonte + " + cenário simulado";
 
         // pico de chuva na segunda hora e depois diminui
         double[] curva = {0.6, 1.0, 0.8, 0.5, 0.3, 0.2};

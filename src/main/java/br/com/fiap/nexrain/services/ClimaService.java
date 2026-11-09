@@ -30,6 +30,11 @@ public class ClimaService {
     private final static Map<String, PrevisaoClima> CACHE = new ConcurrentHashMap<String, PrevisaoClima>();
     private final static Map<String, Long> CACHE_HORARIO = new ConcurrentHashMap<String, Long>();
 
+    // quando a Open-Meteo devolve "limite de uso", ela fica pausada por um tempo
+    private static volatile long openMeteoPausadaAte = 0;
+
+    private final MetNorwayService metNorway = new MetNorwayService();
+
     // Previsao de um ponto
     public PrevisaoClima buscarPrevisao(double latitude, double longitude) {
         Coordenada ponto = new Coordenada(latitude, longitude);
@@ -54,11 +59,21 @@ public class ClimaService {
         }
 
         if (!faltando.isEmpty()) {
-            List<PrevisaoClima> novas = consultarApi(faltando);
-            for (int i = 0; i < faltando.size(); i++) {
-                String chave = chave(faltando.get(i));
-                CACHE.put(chave, novas.get(i));
-                CACHE_HORARIO.put(chave, agora);
+            try {
+                List<PrevisaoClima> novas = consultarFontes(faltando);
+                for (int i = 0; i < faltando.size(); i++) {
+                    String chave = chave(faltando.get(i));
+                    CACHE.put(chave, novas.get(i));
+                    CACHE_HORARIO.put(chave, agora);
+                }
+            } catch (ServicoExternoException e) {
+                // as duas fontes falharam: usa a ultima previsao guardada, se tiver de todos os pontos
+                for (Coordenada ponto : faltando) {
+                    if (!CACHE.containsKey(chave(ponto))) {
+                        throw e;
+                    }
+                }
+                System.out.println("Usando previsão guardada em cache (fontes indisponíveis)");
             }
         }
 
@@ -68,7 +83,33 @@ public class ClimaService {
         return resultado;
     }
 
-    private List<PrevisaoClima> consultarApi(List<Coordenada> pontos) {
+    // Open-Meteo e a fonte principal. Se ela recusar (limite de uso por IP, comum em servidor gratuito
+    // compartilhado como o Render), usa a previsao do MET Norway, que tambem e publica e sem chave
+    private List<PrevisaoClima> consultarFontes(List<Coordenada> pontos) {
+        if (System.currentTimeMillis() > openMeteoPausadaAte) {
+            try {
+                return consultarApi(pontos);
+            } catch (IOException | RuntimeException e) {
+                System.out.println("Falha ao consultar a Open-Meteo: " + e.getMessage());
+                // limite de uso (429) pausa por 30 minutos; outras falhas (fora do ar, lentidao) por 10
+                boolean limiteDeUso = e.getMessage() != null && e.getMessage().contains("Resposta 429");
+                openMeteoPausadaAte = System.currentTimeMillis() + (limiteDeUso ? 30 : 10) * 60 * 1000;
+            }
+        }
+
+        try {
+            List<PrevisaoClima> previsoes = new ArrayList<PrevisaoClima>();
+            for (Coordenada ponto : pontos) {
+                previsoes.add(metNorway.buscarPrevisao(ponto));
+            }
+            return previsoes;
+        } catch (IOException | RuntimeException e) {
+            System.out.println("Falha ao consultar o MET Norway: " + e.getMessage());
+            throw new ServicoExternoException("Não foi possível consultar a previsão do tempo agora");
+        }
+    }
+
+    private List<PrevisaoClima> consultarApi(List<Coordenada> pontos) throws IOException {
         StringBuilder latitudes = new StringBuilder();
         StringBuilder longitudes = new StringBuilder();
 
@@ -86,23 +127,18 @@ public class ClimaService {
                 "&hourly=precipitation,precipitation_probability" +
                 "&forecast_days=2&timezone=America%2FSao_Paulo";
 
-        try {
-            JsonElement json = JsonParser.parseString(ClienteHttp.get(url, TEMPO_LIMITE));
-            List<PrevisaoClima> previsoes = new ArrayList<PrevisaoClima>();
+        JsonElement json = JsonParser.parseString(ClienteHttp.get(url, TEMPO_LIMITE));
+        List<PrevisaoClima> previsoes = new ArrayList<PrevisaoClima>();
 
-            // com um ponto so a API devolve um objeto, com varios devolve uma lista
-            if (json.isJsonArray()) {
-                for (JsonElement item : json.getAsJsonArray()) {
-                    previsoes.add(converter(item.getAsJsonObject()));
-                }
-            } else {
-                previsoes.add(converter(json.getAsJsonObject()));
+        // com um ponto so a API devolve um objeto, com varios devolve uma lista
+        if (json.isJsonArray()) {
+            for (JsonElement item : json.getAsJsonArray()) {
+                previsoes.add(converter(item.getAsJsonObject()));
             }
-            return previsoes;
-        } catch (IOException | RuntimeException e) {
-            System.out.println("Falha ao consultar a Open-Meteo: " + e.getMessage());
-            throw new ServicoExternoException("Não foi possível consultar a previsão do tempo agora");
+        } else {
+            previsoes.add(converter(json.getAsJsonObject()));
         }
+        return previsoes;
     }
 
     private PrevisaoClima converter(JsonObject json) {
