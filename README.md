@@ -39,7 +39,8 @@ levar cerca de um minuto.
 
 - 1 Banco de dados
 
-Rodar o arquivo `script.sql` inteiro no SQL Developer conectado ao Oracle da FIAP
+Rodar o arquivo `script.sql` inteiro **como script** conectado ao Oracle da FIAP: no DBeaver `Alt+X`, no SQL Developer `F5`
+(não use `Ctrl+Enter`, que executa um comando só)
 (`oracle.fiap.com.br:1521:orcl`). Ele cria as 5 tabelas e já cadastra 12 regiões de São Paulo, 8 câmeras,
 4 ocorrências e 2 alertas de exemplo.
 
