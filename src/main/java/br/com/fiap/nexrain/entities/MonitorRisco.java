@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// regra de negocio que calcula o risco de alagamento de uma regiao
-// cruzando a previsao de chuva, o historico do bairro e as ocorrencias ativas
 public class MonitorRisco {
 
     private static final String[] NIVEIS = {"BAIXO", "MEDIO", "ALTO", "CRITICO"};
@@ -46,7 +44,6 @@ public class MonitorRisco {
         return ocorrenciasAtivas;
     }
 
-    // indice de 0 a 100
     public int calcularIndiceRisco() {
         double limite = regiao.getLimiteChuvaMm() > 0 ? regiao.getLimiteChuvaMm() : 30;
 
@@ -54,15 +51,10 @@ public class MonitorRisco {
         double chuvaAcumulada = previsao != null ? previsao.chuvaAcumulada(3) : 0;
         int probabilidade = previsao != null ? previsao.probabilidadeMaxima(6) : 0;
 
-        // ate 50 pontos: intensidade da chuva comparada com o quanto o bairro aguenta
         double pontosChuva = Math.min(50, chuvaMaxima / limite * 50);
-        // ate 15 pontos: chuva acumulada (solo encharcado e bueiros cheios)
         double pontosAcumulado = Math.min(15, chuvaAcumulada / (limite * 1.5) * 15);
-        // ate 10 pontos: chance de chover
         double pontosProbabilidade = Math.min(10, probabilidade * 0.10);
-        // ate 20 pontos: historico de alagamento do bairro (pesa metade se nao tiver chuva prevista)
         double pontosHistorico = regiao.pesoSuscetibilidade() * (chuvaMaxima >= 1 ? 1 : 0.5);
-        // ate 35 pontos: alagamentos que ja estao acontecendo agora
         double pontosOcorrencias = 0;
         for (Ocorrencia ocorrencia : ocorrenciasAtivas) {
             pontosOcorrencias += pesoOcorrencia(ocorrencia.getNivelRisco());
@@ -88,7 +80,6 @@ public class MonitorRisco {
         return "BAIXO";
     }
 
-    // explica de onde veio o indice (mostrado no mapa)
     public List<String> listarFatores() {
         List<String> fatores = new ArrayList<String>();
 
@@ -132,7 +123,6 @@ public class MonitorRisco {
         return nivel.equals("ALTO") || nivel.equals("CRITICO");
     }
 
-    // alerta automatico gerado pela previsao do tempo
     public Alerta gerarAlertaPrevisao(LocalDateTime agora) {
         String nivel = classificarNivel();
 
@@ -152,18 +142,17 @@ public class MonitorRisco {
         return alerta;
     }
 
-    // altura da agua -> risco pra quem passa pela via
     public static String classificarPorNivelAgua(int nivelAguaCm) {
         if (nivelAguaCm >= 50) {
-            return "CRITICO";   // arrasta carro, risco de vida
+            return "CRITICO";
         }
         if (nivelAguaCm >= 30) {
-            return "ALTO";      // carro de passeio nao passa
+            return "ALTO";
         }
         if (nivelAguaCm >= 10) {
-            return "MEDIO";     // passa com dificuldade
+            return "MEDIO";
         }
-        return "BAIXO";         // pocas e pista molhada
+        return "BAIXO";
     }
 
     public static boolean nivelValido(String nivel) {

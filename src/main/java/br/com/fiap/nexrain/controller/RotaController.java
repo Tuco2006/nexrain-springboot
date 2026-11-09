@@ -17,19 +17,16 @@ public class RotaController {
 
     private final RotaService rotaService = new RotaService();
 
-    // Selecionar (historico de rotas calculadas)
     @GetMapping
     public ResponseEntity<List<Rota>> selecionarRs() throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(rotaService.selecionar());
     }
 
-    // Buscar por id (com o trajeto pra desenhar no mapa)
     @GetMapping("/{id}")
     public ResponseEntity<Rota> buscarPorIdRs(@PathVariable int id) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(rotaService.buscarPorId(id));
     }
 
-    // Calcular rota segura (desviando dos alagamentos)
     @PostMapping
     public ResponseEntity<ResultadoRota> calcularRs(@RequestBody SolicitacaoRota solicitacao) throws SQLException, ClassNotFoundException {
         ResultadoRota resultado = rotaService.calcular(solicitacao);
@@ -37,7 +34,6 @@ public class RotaController {
         return ResponseEntity.created(location).body(resultado);
     }
 
-    // Recalcular uma rota salva
     @PutMapping("/{id}")
     public ResponseEntity<ResultadoRota> recalcularRs(@PathVariable int id, @RequestBody(required = false) SolicitacaoRota solicitacao) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(rotaService.recalcular(id, solicitacao));

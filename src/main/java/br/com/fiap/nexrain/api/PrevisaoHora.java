@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.api;
 
-// uma hora da previsao do Open-Meteo
 public class PrevisaoHora {
 
     private String hora;

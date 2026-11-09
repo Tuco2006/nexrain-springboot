@@ -10,7 +10,6 @@ public class ConexaoFactory {
     private final static String USUARIO = Configuracao.ler("DB_USUARIO", "db.usuario");
     private final static String SENHA = Configuracao.ler("DB_SENHA", "db.senha");
 
-    // metodo de conexão com o banco de dados
     public Connection conexao() throws ClassNotFoundException, SQLException {
 
         Class.forName("oracle.jdbc.driver.OracleDriver");

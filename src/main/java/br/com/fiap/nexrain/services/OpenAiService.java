@@ -18,7 +18,6 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
-// visao computacional com o modelo multimodal da OpenAI (le a imagem da camera)
 public class OpenAiService {
 
     private final static String URL = "https://api.openai.com/v1/chat/completions";
@@ -53,7 +52,6 @@ public class OpenAiService {
         return CHAVE != null && !CHAVE.isBlank();
     }
 
-    // imagem = URL publica ou "data:image/jpeg;base64,..."
     public AnaliseVisaoIA analisarImagem(String imagem) throws IOException {
         if (!configurada()) {
             throw new IOException("Chave da OpenAI não configurada");

@@ -69,7 +69,6 @@ public class AlertaDAO implements AutoCloseable {
         return linhas;
     }
 
-    // Desativa os alertas ligados a uma ocorrencia (quando ela e resolvida ou descartada)
     public int desativarPorOcorrencia(int idOcorrencia) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("Update T_FIAP_ALERTA_NR set ATIVO = 'N' where ID_OCORRENCIA = ?");
@@ -88,7 +87,6 @@ public class AlertaDAO implements AutoCloseable {
         return listar(stmt);
     }
 
-    // Alertas ativos e dentro do prazo
     public List<Alerta> selecionarVigentes(LocalDateTime agora) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select " + COLUNAS + " from T_FIAP_ALERTA_NR where ATIVO = 'S' and DATA_EXPIRACAO > ? order by DATA_EMISSAO desc");
@@ -96,7 +94,6 @@ public class AlertaDAO implements AutoCloseable {
         return listar(stmt);
     }
 
-    // Evita repetir o mesmo alerta de previsao pra mesma regiao
     public boolean existeVigente(int idRegiao, String origem, LocalDateTime agora) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select count(*) from T_FIAP_ALERTA_NR where ID_REGIAO = ? and ORIGEM = ? and ATIVO = 'S' and DATA_EXPIRACAO > ?");

@@ -9,7 +9,6 @@ import br.com.fiap.nexrain.services.ClimaService;
 import java.util.ArrayList;
 import java.util.List;
 
-// testa a regra de risco sem precisar do banco: previsao real da Open-Meteo + temporal simulado
 public class TesteMonitorRisco {
 
     public static void main(String[] args) {

@@ -13,12 +13,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-// decide quem analisa a imagem: a IA da OpenAI (se tiver chave) ou o motor local de cor e textura
 public class VisaoComputacionalService {
 
     private final static int LARGURA_ANALISE = 160;
 
-    // a partir desse indice o motor local considera que tem agua acumulada na via
     private final static double LIMIAR_ALAGAMENTO = 0.12;
 
     private final OpenAiService openAiService = new OpenAiService();
@@ -42,9 +40,6 @@ public class VisaoComputacionalService {
         return analisarLocalmente(figura);
     }
 
-    // MOTOR LOCAL
-    // olha a parte de baixo da imagem (onde fica a rua) e procura dois sinais de agua parada:
-    // 1) area lisa com cor de agua barrenta  2) area lisa, clara e sem cor (reflexo do ceu na lamina d'agua)
     public AnaliseVisaoIA analisarLocalmente(BufferedImage original) {
         BufferedImage imagem = reduzir(original);
         int largura = imagem.getWidth();
@@ -67,7 +62,6 @@ public class VisaoComputacionalService {
             for (int x = 1; x < largura - 2; x++) {
                 total++;
 
-                // textura: quanto o pixel varia em relacao aos vizinhos (agua e lisa, asfalto e calcada nao)
                 double media = 0;
                 for (int dy = -1; dy <= 1; dy++) {
                     for (int dx = -1; dx <= 1; dx++) {
@@ -127,7 +121,6 @@ public class VisaoComputacionalService {
         return analise;
     }
 
-    // garante que a resposta da IA siga as regras do NexRain
     private AnaliseVisaoIA normalizar(AnaliseVisaoIA analise) {
         analise.setNivelAguaEstimadoCm(Math.max(0, analise.getNivelAguaEstimadoCm()));
         analise.setConfianca(Math.max(0, Math.min(100, analise.getConfianca())));

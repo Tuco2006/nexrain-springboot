@@ -174,12 +174,10 @@ public class Ocorrencia {
         return new Coordenada(latitude, longitude);
     }
 
-    // so entra no mapa e no calculo de rotas enquanto nao foi descartada nem resolvida
     public boolean ativa() {
         return "PENDENTE".equals(status) || "CONFIRMADA".equals(status);
     }
 
-    // area ao redor do ponto que o algoritmo de rotas deve evitar
     public int raioImpactoMetros() {
         switch (nivelRisco == null ? "" : nivelRisco) {
             case "CRITICO":
@@ -193,7 +191,6 @@ public class Ocorrencia {
         }
     }
 
-    // peso usado pra comparar rotas (quanto maior, mais o algoritmo foge dessa ocorrencia)
     public double penalidadeRota() {
         double peso;
         switch (nivelRisco == null ? "" : nivelRisco) {
@@ -209,7 +206,6 @@ public class Ocorrencia {
             default:
                 peso = 3;
         }
-        // ocorrencia pendente ainda nao foi confirmada por ninguem, pesa um pouco menos
         return "CONFIRMADA".equals(status) ? peso : peso * 0.7;
     }
 
@@ -217,7 +213,6 @@ public class Ocorrencia {
         return "ALTO".equals(nivelRisco) || "CRITICO".equals(nivelRisco);
     }
 
-    // regras de validacao da ocorrencia (ciclo de vida)
     public void confirmar(String responsavel) {
         if (!"PENDENTE".equals(status)) {
             throw new RegraNegocioException("Só é possível confirmar uma ocorrência pendente (status atual: " + status + ")");

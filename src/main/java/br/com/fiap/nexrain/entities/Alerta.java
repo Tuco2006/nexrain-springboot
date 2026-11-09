@@ -99,7 +99,6 @@ public class Alerta {
         this.ativo = ativo;
     }
 
-    // alerta so vale enquanto esta ativo e dentro do prazo
     public boolean vigente(LocalDateTime agora) {
         return ativo && (dataExpiracao == null || dataExpiracao.isAfter(agora));
     }

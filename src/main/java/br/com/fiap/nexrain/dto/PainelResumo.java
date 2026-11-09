@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.dto;
 
-// numeros mostrados na pagina inicial
 public class PainelResumo {
 
     private int regioesMonitoradas;

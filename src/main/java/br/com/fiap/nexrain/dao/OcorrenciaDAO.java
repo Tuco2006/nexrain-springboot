@@ -78,7 +78,6 @@ public class OcorrenciaDAO implements AutoCloseable {
         return listar(stmt);
     }
 
-    // Filtrar por status (PENDENTE, CONFIRMADA, DESCARTADA, RESOLVIDA)
     public List<Ocorrencia> selecionarPorStatus(String status) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select " + COLUNAS + " from T_FIAP_OCORRENCIA_NR where STATUS = ? order by DATA_HORA desc");
@@ -86,14 +85,12 @@ public class OcorrenciaDAO implements AutoCloseable {
         return listar(stmt);
     }
 
-    // Pendentes + confirmadas (as que aparecem no mapa e entram no calculo de rotas)
     public List<Ocorrencia> selecionarAtivas() throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select " + COLUNAS + " from T_FIAP_OCORRENCIA_NR where STATUS in ('PENDENTE', 'CONFIRMADA') order by DATA_HORA desc");
         return listar(stmt);
     }
 
-    // Historico de uma regiao
     public List<Ocorrencia> selecionarPorRegiao(int idRegiao) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select " + COLUNAS + " from T_FIAP_OCORRENCIA_NR where ID_REGIAO = ? order by DATA_HORA desc");

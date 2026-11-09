@@ -20,14 +20,12 @@ import java.util.Locale;
 
 public class RotaService {
 
-    // limite de chamadas extras ao OSRM por calculo (o servidor publico tem limite de uso)
     private static final int MAXIMO_DESVIOS = 6;
     private static final double DISTANCIA_MAXIMA_KM = 80;
 
     private final MapaService mapaService = new MapaService();
     private final OcorrenciaService ocorrenciaService = new OcorrenciaService();
 
-    // Selecionar (historico)
     public List<Rota> selecionar() throws SQLException, ClassNotFoundException {
         try (RotaDAO rotaDAO = new RotaDAO()) {
             return rotaDAO.selecionar();
@@ -46,7 +44,6 @@ public class RotaService {
         }
     }
 
-    // Calcular uma rota segura e guardar no historico
     public ResultadoRota calcular(SolicitacaoRota solicitacao) throws SQLException, ClassNotFoundException {
         ResultadoRota resultado = planejar(solicitacao);
 
@@ -56,14 +53,12 @@ public class RotaService {
         return resultado;
     }
 
-    // Recalcular uma rota ja salva (os alagamentos podem ter mudado)
     public ResultadoRota recalcular(int id, SolicitacaoRota solicitacao) throws SQLException, ClassNotFoundException {
         Rota existente = buscarPorId(id);
 
         if (solicitacao == null) {
             solicitacao = new SolicitacaoRota();
         }
-        // o que nao vier no corpo da requisicao continua igual ao que estava salvo
         if (vazio(solicitacao.getOrigem()) && solicitacao.getOrigemLat() == null) {
             solicitacao.setOrigem(existente.getOrigem());
             solicitacao.setOrigemLat(existente.getOrigemLat());
@@ -93,11 +88,6 @@ public class RotaService {
         }
     }
 
-    // ALGORITMO DE ROTA SEGURA
-    // 1) pede ao OSRM a rota mais rapida e as alternativas
-    // 2) verifica quais passam dentro do raio de algum alagamento ativo
-    // 3) se a melhor ainda passa por alagamento, cria pontos de desvio dos dois lados e pede novas rotas por eles
-    // 4) fica com a de menor custo (tempo + penalidade por alagamento)
     private ResultadoRota planejar(SolicitacaoRota solicitacao) throws SQLException, ClassNotFoundException {
         if (solicitacao == null) {
             throw new RegraNegocioException("Informe a origem e o destino");
@@ -141,7 +131,6 @@ public class RotaService {
                 TrajetoCandidato desvio = mapaService.buscarRotaPassandoPor(coordOrigem, via, coordDestino);
                 desviosTestados++;
 
-                // descarta desvio absurdamente mais longo que a rota original ou que faz "ida e volta" na mesma rua
                 if (desvio != null && desvio.getDuracaoSegundos() <= direto.getDuracaoSegundos() * 2.5 + 600
                         && !planejador.possuiRetorno(desvio)) {
                     candidatos.add(desvio);
@@ -183,7 +172,6 @@ public class RotaService {
         }
     }
 
-    // aceita coordenada pronta (clique no mapa) ou endereco digitado
     private LocalEncontrado resolver(String texto, Double latitude, Double longitude, String campo) {
         if (latitude != null && longitude != null) {
             Coordenada ponto = new Coordenada(latitude, longitude);

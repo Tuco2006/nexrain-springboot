@@ -20,7 +20,6 @@ public class CameraService {
         }
     }
 
-    // Cameras de uma regiao
     public List<Camera> selecionarPorRegiao(int idRegiao) throws SQLException, ClassNotFoundException {
         regiaoService.buscarPorId(idRegiao);
 
@@ -107,7 +106,6 @@ public class CameraService {
             throw new RegraNegocioException("O status da câmera deve ser ATIVA, INATIVA ou MANUTENCAO");
         }
 
-        // a regiao precisa existir
         regiaoService.buscarPorId(camera.getIdRegiao());
 
         camera.setNome(camera.getNome().trim());

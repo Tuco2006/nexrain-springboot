@@ -1,10 +1,3 @@
--- NexRain - script de criacao do banco (Oracle FIAP)
--- Rodar o arquivo INTEIRO como script:
---   DBeaver: Alt+X (Executar script SQL)   |   SQL Developer: F5 (Executar script)
--- Nao use Ctrl+Enter, que executa um comando so e junta as linhas seguidas.
--- Se as tabelas ja existirem (erro ORA-00955), rode antes o arquivo drop.sql.
-
--- bairros monitorados
 CREATE TABLE T_FIAP_REGIAO_NR (
     ID_REGIAO        NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     NOME             VARCHAR2(80)  NOT NULL,
@@ -15,7 +8,6 @@ CREATE TABLE T_FIAP_REGIAO_NR (
     LIMITE_CHUVA_MM  NUMBER(5,1)   DEFAULT 30 NOT NULL
 );
 
--- cameras urbanas que alimentam a visao computacional
 CREATE TABLE T_FIAP_CAMERA_NR (
     ID_CAMERA   NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ID_REGIAO   NUMBER        NOT NULL,
@@ -29,7 +21,6 @@ CREATE TABLE T_FIAP_CAMERA_NR (
         REFERENCES T_FIAP_REGIAO_NR (ID_REGIAO) ON DELETE CASCADE
 );
 
--- alagamentos identificados pela IA, informados por cidadaos ou cadastrados manualmente
 CREATE TABLE T_FIAP_OCORRENCIA_NR (
     ID_OCORRENCIA   NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ID_REGIAO       NUMBER        NOT NULL,
@@ -52,7 +43,6 @@ CREATE TABLE T_FIAP_OCORRENCIA_NR (
         REFERENCES T_FIAP_CAMERA_NR (ID_CAMERA) ON DELETE SET NULL
 );
 
--- alertas enviados aos cidadaos
 CREATE TABLE T_FIAP_ALERTA_NR (
     ID_ALERTA        NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ID_REGIAO        NUMBER        NOT NULL,
@@ -70,7 +60,6 @@ CREATE TABLE T_FIAP_ALERTA_NR (
         REFERENCES T_FIAP_OCORRENCIA_NR (ID_OCORRENCIA) ON DELETE SET NULL
 );
 
--- rotas seguras calculadas pelo algoritmo de desvio
 CREATE TABLE T_FIAP_ROTA_NR (
     ID_ROTA                NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     ORIGEM                 VARCHAR2(150) NOT NULL,
@@ -91,9 +80,6 @@ CREATE TABLE T_FIAP_ROTA_NR (
     DATA_CALCULO           TIMESTAMP     DEFAULT SYSTIMESTAMP NOT NULL
 );
 
--- ===================== DADOS INICIAIS =====================
-
--- regioes de Sao Paulo com historico de alagamento (CGE)
 INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE, LIMITE_CHUVA_MM) VALUES ('Centro / Anhangabaú', 'São Paulo', -23.545500, -46.636500, 'ALTA', 20);
 INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE, LIMITE_CHUVA_MM) VALUES ('Pompeia', 'São Paulo', -23.527500, -46.687000, 'ALTA', 25);
 INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE, LIMITE_CHUVA_MM) VALUES ('Lapa', 'São Paulo', -23.522500, -46.704000, 'ALTA', 25);
@@ -107,7 +93,6 @@ INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE
 INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE, LIMITE_CHUVA_MM) VALUES ('Vila Mariana', 'São Paulo', -23.589000, -46.634000, 'BAIXA', 40);
 INSERT INTO T_FIAP_REGIAO_NR (NOME, CIDADE, LATITUDE, LONGITUDE, SUSCETIBILIDADE, LIMITE_CHUVA_MM) VALUES ('Itaim Bibi', 'São Paulo', -23.584000, -46.676000, 'MEDIA', 30);
 
--- cameras (imagens publicas do Wikimedia Commons, licencas CC)
 INSERT INTO T_FIAP_CAMERA_NR (ID_REGIAO, NOME, ENDERECO, LATITUDE, LONGITUDE, URL_IMAGEM, STATUS) VALUES (1, 'CAM-01 Praça da Bandeira', 'Praça da Bandeira - Centro', -23.548700, -46.639300,
  'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Enchente_em_2005_-_sampa_%28152751976%29.jpg/960px-Enchente_em_2005_-_sampa_%28152751976%29.jpg', 'ATIVA');
 INSERT INTO T_FIAP_CAMERA_NR (ID_REGIAO, NOME, ENDERECO, LATITUDE, LONGITUDE, URL_IMAGEM, STATUS) VALUES (2, 'CAM-02 Av. Pompeia', 'Av. Pompeia x Av. Francisco Matarazzo', -23.526200, -46.685300,
@@ -125,7 +110,6 @@ INSERT INTO T_FIAP_CAMERA_NR (ID_REGIAO, NOME, ENDERECO, LATITUDE, LONGITUDE, UR
 INSERT INTO T_FIAP_CAMERA_NR (ID_REGIAO, NOME, ENDERECO, LATITUDE, LONGITUDE, URL_IMAGEM, STATUS) VALUES (8, 'CAM-08 Av. Eliseu de Almeida', 'Av. Eliseu de Almeida - Butantã', -23.579000, -46.723000,
  'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Cruzamento_R._do_FicoxAntonio_Gomes_do_Amaral_alagamento.jpg/960px-Cruzamento_R._do_FicoxAntonio_Gomes_do_Amaral_alagamento.jpg', 'MANUTENCAO');
 
--- ocorrencias de exemplo (usadas pelo algoritmo de rotas)
 INSERT INTO T_FIAP_OCORRENCIA_NR (ID_REGIAO, ID_CAMERA, ENDERECO, LATITUDE, LONGITUDE, DATA_HORA, NIVEL_AGUA_CM, NIVEL_RISCO, CONFIANCA, ORIGEM, STATUS, DESCRICAO, VALIDADO_POR, DATA_VALIDACAO)
 VALUES (1, 1, 'Praça da Bandeira - Centro', -23.548700, -46.639300, SYSTIMESTAMP - INTERVAL '40' MINUTE, 55, 'CRITICO', 91, 'IA_CAMERA', 'CONFIRMADA',
         'Água barrenta cobrindo toda a pista, correnteza visível e veículos parados.', 'Defesa Civil - Operador 03', SYSTIMESTAMP - INTERVAL '30' MINUTE);
@@ -139,7 +123,6 @@ INSERT INTO T_FIAP_OCORRENCIA_NR (ID_REGIAO, ID_CAMERA, ENDERECO, LATITUDE, LONG
 VALUES (3, 3, 'Rua Guaicurus - Lapa', -23.524600, -46.700600, SYSTIMESTAMP - INTERVAL '5' MINUTE, 12, 'MEDIO', 67, 'IA_CAMERA', 'PENDENTE',
         'Poças grandes na pista e acúmulo de água junto à guia.');
 
--- alertas de exemplo
 INSERT INTO T_FIAP_ALERTA_NR (ID_REGIAO, ID_OCORRENCIA, TITULO, MENSAGEM, NIVEL, ORIGEM, DATA_EMISSAO, DATA_EXPIRACAO, ATIVO)
 VALUES (1, 1, 'Alagamento crítico na Praça da Bandeira', 'Via intransitável com cerca de 55 cm de água. Evite a região e use as rotas alternativas do NexRain.', 'CRITICO', 'OCORRENCIA',
         SYSTIMESTAMP - INTERVAL '30' MINUTE, SYSTIMESTAMP + INTERVAL '3' HOUR, 'S');

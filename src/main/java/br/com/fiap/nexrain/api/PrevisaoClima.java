@@ -3,7 +3,6 @@ package br.com.fiap.nexrain.api;
 import java.util.ArrayList;
 import java.util.List;
 
-// condicao atual e previsao de chuva de um ponto, vinda da API Open-Meteo
 public class PrevisaoClima {
 
     private double latitude;
@@ -102,7 +101,6 @@ public class PrevisaoClima {
         this.proximasHoras = proximasHoras;
     }
 
-    // soma da chuva prevista nas proximas N horas
     public double chuvaAcumulada(int horas) {
         double total = 0;
         for (int i = 0; i < Math.min(horas, proximasHoras.size()); i++) {
@@ -111,7 +109,6 @@ public class PrevisaoClima {
         return Math.round(total * 10) / 10.0;
     }
 
-    // hora mais forte de chuva prevista nas proximas N horas
     public double chuvaMaximaHora(int horas) {
         double maximo = precipitacaoAtual;
         for (int i = 0; i < Math.min(horas, proximasHoras.size()); i++) {
@@ -128,7 +125,6 @@ public class PrevisaoClima {
         return maximo;
     }
 
-    // cenario de temporal de verao, usado na demonstracao quando nao esta chovendo de verdade
     public PrevisaoClima simularTemporal(double intensidade) {
         PrevisaoClima simulada = new PrevisaoClima();
         simulada.latitude = latitude;
@@ -141,7 +137,6 @@ public class PrevisaoClima {
         simulada.simulado = true;
         simulada.fonte = fonte + " + cenário simulado";
 
-        // pico de chuva na segunda hora e depois diminui
         double[] curva = {0.6, 1.0, 0.8, 0.5, 0.3, 0.2};
         for (int i = 0; i < proximasHoras.size(); i++) {
             PrevisaoHora original = proximasHoras.get(i);
@@ -153,7 +148,6 @@ public class PrevisaoClima {
         return simulada;
     }
 
-    // codigos WMO usados pelo Open-Meteo
     public static String descreverCodigo(int codigo) {
         if (codigo == 0) return "Céu limpo";
         if (codigo <= 2) return "Parcialmente nublado";

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// previsao reserva: API publica do instituto meteorologico da Noruega (https://api.met.no), sem chave
 public class MetNorwayService {
 
     private final static String URL = "https://api.met.no/weatherapi/locationforecast/2.0/complete";
@@ -46,7 +45,6 @@ public class MetNorwayService {
 
         for (JsonElement item : serie) {
             JsonObject passo = item.getAsJsonObject();
-            // horario vem em UTC, converte pro horario de Sao Paulo
             LocalDateTime hora = LocalDateTime.ofInstant(Instant.parse(passo.get("time").getAsString()), Ocorrencia.FUSO);
             if (hora.isBefore(horaAtual)) {
                 continue;
@@ -87,7 +85,6 @@ public class MetNorwayService {
         return previsao;
     }
 
-    // o MET Norway nem sempre manda a probabilidade, entao estima pelo volume previsto
     private int estimarProbabilidade(double chuvaMm) {
         if (chuvaMm <= 0) {
             return 5;
@@ -95,7 +92,6 @@ public class MetNorwayService {
         return (int) Math.min(95, 40 + chuvaMm * 15);
     }
 
-    // converte o simbolo do MET Norway ("lightrainshowers_day", "heavyrainandthunder"...) para o codigo WMO usado no sistema
     private int codigoWmo(String simbolo) {
         String s = simbolo.toLowerCase();
         if (s.contains("thunder")) return 95;

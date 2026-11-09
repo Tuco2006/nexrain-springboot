@@ -33,13 +33,11 @@ public class RegiaoController {
         return ResponseEntity.ok(regiaoService.buscarPorId(id));
     }
 
-    // Cameras da regiao
     @GetMapping("/{id}/cameras")
     public ResponseEntity<List<Camera>> selecionarCamerasRs(@PathVariable int id) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(cameraService.selecionarPorRegiao(id));
     }
 
-    // Historico de ocorrencias da regiao
     @GetMapping("/{id}/ocorrencias")
     public ResponseEntity<List<Ocorrencia>> selecionarOcorrenciasRs(@PathVariable int id) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(ocorrenciaService.selecionarPorRegiao(id));

@@ -23,7 +23,6 @@ public class AlertaService {
         }
     }
 
-    // Alertas que a populacao deve ver agora
     public List<Alerta> selecionarVigentes() throws SQLException, ClassNotFoundException {
         try (AlertaDAO alertaDAO = new AlertaDAO()) {
             return alertaDAO.selecionarVigentes(agora());
@@ -74,7 +73,6 @@ public class AlertaService {
         }
     }
 
-    // Alerta automatico quando uma ocorrencia grave e confirmada
     public Alerta gerarParaOcorrencia(Ocorrencia ocorrencia, Regiao regiao) throws SQLException, ClassNotFoundException {
         LocalDateTime agora = agora();
 
@@ -98,7 +96,6 @@ public class AlertaService {
         return alerta;
     }
 
-    // Alerta automatico gerado pela previsao do tempo (nao repete se a regiao ja tem um vigente)
     public Alerta gerarParaPrevisao(MonitorRisco monitor) throws SQLException, ClassNotFoundException {
         LocalDateTime agora = agora();
 

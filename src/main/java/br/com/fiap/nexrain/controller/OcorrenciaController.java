@@ -16,7 +16,6 @@ public class OcorrenciaController {
 
     private final OcorrenciaService ocorrenciaService = new OcorrenciaService();
 
-    // Selecionar (filtros opcionais: ?status=PENDENTE ou ?ativas=true)
     @GetMapping
     public ResponseEntity<List<Ocorrencia>> selecionarRs(@RequestParam(required = false) String status,
                                                          @RequestParam(required = false, defaultValue = "false") boolean ativas) throws SQLException, ClassNotFoundException {
@@ -35,7 +34,6 @@ public class OcorrenciaController {
         return ResponseEntity.ok(ocorrenciaService.buscarPorId(id));
     }
 
-    // Inserir (relato de alagamento)
     @PostMapping
     public ResponseEntity<Ocorrencia> inserirRs(@RequestBody Ocorrencia ocorrencia) throws SQLException, ClassNotFoundException {
         ocorrenciaService.inserir(ocorrencia);
@@ -49,7 +47,6 @@ public class OcorrenciaController {
         return ResponseEntity.ok(ocorrenciaService.atualizar(id, ocorrencia));
     }
 
-    // Validar (CONFIRMAR, DESCARTAR ou RESOLVER)
     @PutMapping("/{id}/validacao")
     public ResponseEntity<Ocorrencia> validarRs(@PathVariable int id, @RequestBody ValidacaoOcorrencia validacao) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(ocorrenciaService.validar(id, validacao));

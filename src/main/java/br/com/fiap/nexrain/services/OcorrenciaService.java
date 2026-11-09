@@ -28,7 +28,6 @@ public class OcorrenciaService {
         }
     }
 
-    // Filtrar por status
     public List<Ocorrencia> selecionarPorStatus(String status) throws SQLException, ClassNotFoundException {
         String valor = status.trim().toUpperCase();
         if (!contem(STATUS, valor)) {
@@ -40,14 +39,12 @@ public class OcorrenciaService {
         }
     }
 
-    // Pendentes + confirmadas
     public List<Ocorrencia> selecionarAtivas() throws SQLException, ClassNotFoundException {
         try (OcorrenciaDAO ocorrenciaDAO = new OcorrenciaDAO()) {
             return ocorrenciaDAO.selecionarAtivas();
         }
     }
 
-    // Historico de uma regiao
     public List<Ocorrencia> selecionarPorRegiao(int idRegiao) throws SQLException, ClassNotFoundException {
         regiaoService.buscarPorId(idRegiao);
 
@@ -68,7 +65,6 @@ public class OcorrenciaService {
         }
     }
 
-    // Inserir (relato do cidadao ou cadastro do operador)
     public Ocorrencia inserir(Ocorrencia ocorrencia) throws SQLException, ClassNotFoundException {
         validar(ocorrencia);
 
@@ -104,7 +100,6 @@ public class OcorrenciaService {
         }
     }
 
-    // Validacao feita pela Defesa Civil / CGE
     public Ocorrencia validar(int id, ValidacaoOcorrencia validacao) throws SQLException, ClassNotFoundException {
         if (validacao == null || validacao.getAcao() == null) {
             throw new RegraNegocioException("Informe a ação: CONFIRMAR, DESCARTAR ou RESOLVER");
@@ -130,7 +125,6 @@ public class OcorrenciaService {
             ocorrenciaDAO.atualizar(ocorrencia);
         }
 
-        // ocorrencia grave confirmada vira alerta pra populacao; resolvida ou descartada encerra o alerta
         if ("CONFIRMADA".equals(ocorrencia.getStatus()) && ocorrencia.exigeAlerta()) {
             alertaService.gerarParaOcorrencia(ocorrencia, regiaoService.buscarPorId(ocorrencia.getIdRegiao()));
         } else if (!ocorrencia.ativa()) {
@@ -139,7 +133,6 @@ public class OcorrenciaService {
         return ocorrencia;
     }
 
-    // Registra o que a camera detectou. Se a mesma camera ja tem uma ocorrencia ativa, so atualiza ela
     public Ocorrencia registrarDeteccao(Ocorrencia deteccao) throws SQLException, ClassNotFoundException {
         if (deteccao.getIdCamera() != null) {
             for (Ocorrencia existente : selecionarAtivas()) {
@@ -183,7 +176,6 @@ public class OcorrenciaService {
             throw new RegraNegocioException("A descrição deve ter no máximo 400 caracteres");
         }
 
-        // sem nivel de risco informado, calcula pela altura da agua
         String nivel = vazio(ocorrencia.getNivelRisco())
                 ? MonitorRisco.classificarPorNivelAgua(ocorrencia.getNivelAguaCm())
                 : ocorrencia.getNivelRisco().trim().toUpperCase().replace("MÉDIO", "MEDIO").replace("CRÍTICO", "CRITICO");
@@ -205,7 +197,6 @@ public class OcorrenciaService {
             cameraService.buscarPorId(ocorrencia.getIdCamera());
         }
 
-        // sem regiao informada, vincula a regiao monitorada mais proxima
         if (ocorrencia.getIdRegiao() <= 0) {
             Regiao regiao = regiaoService.regiaoMaisProxima(ocorrencia.coordenada());
             ocorrencia.setIdRegiao(regiao.getId());

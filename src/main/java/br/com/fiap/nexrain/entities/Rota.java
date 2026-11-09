@@ -172,7 +172,6 @@ public class Rota {
         return new Coordenada(destinoLat, destinoLon);
     }
 
-    // quanto tempo a mais o motorista gasta pra fugir dos alagamentos
     public double getMinutosExtras() {
         return Math.max(0, Math.round((duracaoMin - duracaoDiretaMin) * 10) / 10.0);
     }

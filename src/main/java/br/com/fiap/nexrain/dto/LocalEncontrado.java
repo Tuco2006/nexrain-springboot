@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.dto;
 
-// resultado da busca de endereco (Nominatim / OpenStreetMap)
 public class LocalEncontrado {
 
     private String nome;

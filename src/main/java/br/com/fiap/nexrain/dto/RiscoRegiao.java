@@ -6,7 +6,6 @@ import br.com.fiap.nexrain.entities.Regiao;
 
 import java.util.List;
 
-// risco calculado de uma regiao, pronto pra pintar no mapa
 public class RiscoRegiao {
 
     private Regiao regiao;

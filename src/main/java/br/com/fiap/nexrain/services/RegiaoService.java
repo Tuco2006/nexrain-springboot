@@ -63,7 +63,6 @@ public class RegiaoService {
         }
     }
 
-    // Regiao monitorada mais perto de um ponto (usada quando o cidadao manda so a localizacao)
     public Regiao regiaoMaisProxima(Coordenada ponto) throws SQLException, ClassNotFoundException {
         Regiao maisProxima = null;
         double menorDistancia = Double.MAX_VALUE;

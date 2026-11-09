@@ -18,24 +18,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// previsao do tempo real pela API gratuita Open-Meteo (https://open-meteo.com), sem chave
 public class ClimaService {
 
     private final static String URL = "https://api.open-meteo.com/v1/forecast";
     private final static int TEMPO_LIMITE = 15000;
     private final static int HORAS_PREVISAO = 24;
 
-    // guarda as previsoes por 10 minutos pra nao chamar a API toda hora
     private final static long VALIDADE_CACHE_MS = 10 * 60 * 1000;
     private final static Map<String, PrevisaoClima> CACHE = new ConcurrentHashMap<String, PrevisaoClima>();
     private final static Map<String, Long> CACHE_HORARIO = new ConcurrentHashMap<String, Long>();
 
-    // quando a Open-Meteo devolve "limite de uso", ela fica pausada por um tempo
     private static volatile long openMeteoPausadaAte = 0;
 
     private final MetNorwayService metNorway = new MetNorwayService();
 
-    // Previsao de um ponto
     public PrevisaoClima buscarPrevisao(double latitude, double longitude) {
         Coordenada ponto = new Coordenada(latitude, longitude);
         if (!ponto.valida()) {
@@ -44,7 +40,6 @@ public class ClimaService {
         return buscarPrevisoes(List.of(ponto)).get(0);
     }
 
-    // Previsao de varios pontos numa unica chamada (a Open-Meteo aceita lista de coordenadas)
     public List<PrevisaoClima> buscarPrevisoes(List<Coordenada> pontos) {
         List<PrevisaoClima> resultado = new ArrayList<PrevisaoClima>();
         List<Coordenada> faltando = new ArrayList<Coordenada>();
@@ -67,7 +62,6 @@ public class ClimaService {
                     CACHE_HORARIO.put(chave, agora);
                 }
             } catch (ServicoExternoException e) {
-                // as duas fontes falharam: usa a ultima previsao guardada, se tiver de todos os pontos
                 for (Coordenada ponto : faltando) {
                     if (!CACHE.containsKey(chave(ponto))) {
                         throw e;
@@ -83,15 +77,12 @@ public class ClimaService {
         return resultado;
     }
 
-    // Open-Meteo e a fonte principal. Se ela recusar (limite de uso por IP, comum em servidor gratuito
-    // compartilhado como o Render), usa a previsao do MET Norway, que tambem e publica e sem chave
     private List<PrevisaoClima> consultarFontes(List<Coordenada> pontos) {
         if (System.currentTimeMillis() > openMeteoPausadaAte) {
             try {
                 return consultarApi(pontos);
             } catch (IOException | RuntimeException e) {
                 System.out.println("Falha ao consultar a Open-Meteo: " + e.getMessage());
-                // limite de uso (429) pausa por 30 minutos; outras falhas (fora do ar, lentidao) por 10
                 boolean limiteDeUso = e.getMessage() != null && e.getMessage().contains("Resposta 429");
                 openMeteoPausadaAte = System.currentTimeMillis() + (limiteDeUso ? 30 : 10) * 60 * 1000;
             }
@@ -130,7 +121,6 @@ public class ClimaService {
         JsonElement json = JsonParser.parseString(ClienteHttp.get(url, TEMPO_LIMITE));
         List<PrevisaoClima> previsoes = new ArrayList<PrevisaoClima>();
 
-        // com um ponto so a API devolve um objeto, com varios devolve uma lista
         if (json.isJsonArray()) {
             for (JsonElement item : json.getAsJsonArray()) {
                 previsoes.add(converter(item.getAsJsonObject()));
@@ -159,7 +149,6 @@ public class ClimaService {
         JsonArray chuvas = horaria.getAsJsonArray("precipitation");
         JsonArray probabilidades = horaria.getAsJsonArray("precipitation_probability");
 
-        // a lista comeca a meia-noite, entao pula ate a hora atual ("2026-11-09T14:15" -> "2026-11-09T14")
         String prefixoHoraAtual = horaAtual.substring(0, 13);
         int inicio = 0;
         for (int i = 0; i < horas.size(); i++) {

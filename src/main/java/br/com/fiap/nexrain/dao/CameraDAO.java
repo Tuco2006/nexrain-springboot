@@ -83,7 +83,6 @@ public class CameraDAO implements AutoCloseable {
         return listar(stmt);
     }
 
-    // Cameras de uma regiao
     public List<Camera> selecionarPorRegiao(int idRegiao) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("select " + COLUNAS + " from T_FIAP_CAMERA_NR where ID_REGIAO = ? order by ID_CAMERA");

@@ -20,13 +20,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class TratadorExcecoes {
 
-    // 400 - dado enviado nao passou na validacao
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<Map<String, Object>> regraNegocio(RegraNegocioException e) {
         return resposta(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    // 400 - json mal formatado, id que nao e numero ou parametro faltando
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Map<String, Object>> requisicaoInvalida(Exception e) {
         System.out.println("Requisição inválida: " + e.getMessage());
@@ -38,7 +36,6 @@ public class TratadorExcecoes {
         return resposta(HttpStatus.BAD_REQUEST, "Informe o parâmetro " + e.getParameterName());
     }
 
-    // 404 - registro nao existe no banco
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> naoEncontrado(RecursoNaoEncontradoException e) {
         return resposta(HttpStatus.NOT_FOUND, e.getMessage());
@@ -59,13 +56,11 @@ public class TratadorExcecoes {
         return resposta(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Envie os dados no formato JSON");
     }
 
-    // 502 - API externa (clima, mapas, imagem da camera) nao respondeu
     @ExceptionHandler(ServicoExternoException.class)
     public ResponseEntity<Map<String, Object>> servicoExterno(ServicoExternoException e) {
         return resposta(HttpStatus.BAD_GATEWAY, e.getMessage());
     }
 
-    // 500 - falha no banco de dados
     @ExceptionHandler({SQLException.class, ClassNotFoundException.class})
     public ResponseEntity<Map<String, Object>> erroBanco(Exception e) {
         System.out.println("Erro no banco de dados: " + e.getMessage());

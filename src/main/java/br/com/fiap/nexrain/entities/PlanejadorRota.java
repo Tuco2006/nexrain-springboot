@@ -6,10 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-// algoritmo que escolhe o caminho que passa longe dos pontos alagados
 public class PlanejadorRota {
 
-    // distancia extra (alem do raio de impacto) usada pra criar os pontos de desvio
     private static final double FOLGA_DESVIO_METROS = 250;
 
     private List<Ocorrencia> pontosAlagados;
@@ -34,7 +32,6 @@ public class PlanejadorRota {
         return pontosAlagados;
     }
 
-    // ocorrencias que ficam dentro do raio de impacto de algum trecho do caminho
     public List<Ocorrencia> alagamentosNoTrajeto(TrajetoCandidato trajeto) {
         List<Ocorrencia> atingidas = new ArrayList<Ocorrencia>();
         List<Coordenada> pontos = trajeto.getPontos();
@@ -52,8 +49,6 @@ public class PlanejadorRota {
         return atingidas;
     }
 
-    // um desvio forcado as vezes faz o carro entrar numa rua e voltar pelo mesmo caminho ("laco").
-    // conta quantos pontos do trajeto passam de novo num lugar ja visitado (~20 m de precisao)
     public double proporcaoRetorno(TrajetoCandidato trajeto) {
         List<Coordenada> pontos = trajeto.getPontos();
         if (pontos.size() < 10) {
@@ -76,7 +71,6 @@ public class PlanejadorRota {
         return proporcaoRetorno(trajeto) > 0.04;
     }
 
-    // custo = tempo de viagem + penalidade de cada alagamento no caminho
     public double calcularCusto(TrajetoCandidato trajeto) {
         double custo = trajeto.getDuracaoMinutos();
 
@@ -100,13 +94,10 @@ public class PlanejadorRota {
         return melhor;
     }
 
-    // cria pontos dos dois lados da rua alagada, perpendiculares ao sentido do caminho,
-    // pra forcar o servico de rotas a passar por fora da area de risco
     public List<Coordenada> gerarPontosDesvio(TrajetoCandidato trajeto, Ocorrencia ocorrencia) {
         List<Coordenada> pontos = trajeto.getPontos();
         Coordenada local = ocorrencia.coordenada();
 
-        // acha o trecho do caminho mais perto do alagamento
         int indiceMaisPerto = 0;
         double menorDistancia = Double.MAX_VALUE;
         for (int i = 0; i < pontos.size() - 1; i++) {
@@ -117,7 +108,6 @@ public class PlanejadorRota {
             }
         }
 
-        // usa um trecho um pouco maior pra ter a direcao geral da via
         Coordenada antes = pontos.get(Math.max(0, indiceMaisPerto - 3));
         Coordenada depois = pontos.get(Math.min(pontos.size() - 1, indiceMaisPerto + 4));
         double direcaoVia = antes.direcaoAte(depois);

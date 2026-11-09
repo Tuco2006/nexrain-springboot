@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.dto;
 
-// o que o front manda pra IA analisar: uma camera cadastrada ou uma foto enviada pelo cidadao
 public class EntradaAnaliseImagem {
 
     private Integer idCamera;

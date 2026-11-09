@@ -85,7 +85,6 @@ public class Regiao {
         return new Coordenada(latitude, longitude);
     }
 
-    // pontos extras no indice de risco conforme o historico de alagamento do bairro
     public int pesoSuscetibilidade() {
         if ("ALTA".equals(suscetibilidade)) {
             return 20;

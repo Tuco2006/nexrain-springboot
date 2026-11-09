@@ -29,7 +29,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- chamadas para as APIs externas (Open-Meteo, OSRM, Nominatim e OpenAI) -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>

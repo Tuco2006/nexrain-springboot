@@ -10,10 +10,8 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
-// conexao com as APIs publicas usadas pelo NexRain (Open-Meteo, OSRM, Nominatim, imagens das cameras)
 public class ClienteHttp {
 
-    // Nominatim e Wikimedia pedem um User-Agent que identifique a aplicacao
     public static final String USER_AGENT = "NexRain/1.0 (projeto academico FIAP - Global Solution)";
 
     public static String get(String url, int tempoLimite) throws IOException {

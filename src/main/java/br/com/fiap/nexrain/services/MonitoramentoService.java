@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
-// fluxo de monitoramento por IA: imagem da camera -> visao computacional -> registro da ocorrencia
 public class MonitoramentoService {
 
     private static final int TAMANHO_MAXIMO = 8 * 1024 * 1024;
@@ -46,7 +45,6 @@ public class MonitoramentoService {
 
         if (!vazio(entrada.getImagemBase64())) {
             String base64 = entrada.getImagemBase64().trim();
-            // aceita o formato "data:image/png;base64,AAAA" que o navegador gera
             if (base64.startsWith("data:")) {
                 tipo = base64.substring(5, base64.indexOf(';'));
                 base64 = base64.substring(base64.indexOf(',') + 1);

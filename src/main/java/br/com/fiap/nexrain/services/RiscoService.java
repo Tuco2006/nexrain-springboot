@@ -16,10 +16,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-// previsao de onde vai alagar: junta Open-Meteo + regioes + ocorrencias no MonitorRisco
 public class RiscoService {
 
-    // centro do temporal simulado (zona oeste / centro, onde mais alaga em SP)
     private static final Coordenada CENTRO_TEMPORAL = new Coordenada(-23.545, -46.665);
     private static final double RAIO_TEMPORAL_METROS = 4500;
 
@@ -37,7 +35,6 @@ public class RiscoService {
         return riscos;
     }
 
-    // cria alertas pras regioes com risco ALTO ou CRITICO
     public List<Alerta> gerarAlertasPrevisao(boolean simulacao) throws SQLException, ClassNotFoundException {
         List<Alerta> gerados = new ArrayList<Alerta>();
 
@@ -100,7 +97,6 @@ public class RiscoService {
         return monitores;
     }
 
-    // chuva mais forte perto do centro do temporal e mais fraca conforme se afasta (mm/h)
     private double intensidadeSimulada(Coordenada ponto) {
         double distancia = CENTRO_TEMPORAL.distanciaMetros(ponto);
         double fator = Math.exp(-Math.pow(distancia / RAIO_TEMPORAL_METROS, 2));

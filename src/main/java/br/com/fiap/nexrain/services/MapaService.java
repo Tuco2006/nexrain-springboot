@@ -18,22 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// rotas pelo OSRM e busca de endereco pelo Nominatim, os dois usando dados do OpenStreetMap
 public class MapaService {
 
-    // servidor publico do OSRM e um espelho, caso o primeiro esteja fora do ar
     private final static String[] SERVIDORES_ROTA = {
             "https://router.project-osrm.org/route/v1/driving/",
             "https://routing.openstreetmap.de/routed-car/route/v1/driving/"
     };
     private final static String URL_ENDERECO = "https://nominatim.openstreetmap.org/search";
 
-    // caixa em volta da Grande Sao Paulo, usada pra priorizar resultados da cidade
     private final static String AREA_SAO_PAULO = "-46.83,-23.36,-46.36,-23.80";
 
     private final static int TEMPO_LIMITE = 20000;
 
-    // Rota principal + alternativas que o proprio OSRM sugere
     public List<TrajetoCandidato> buscarRotas(Coordenada origem, Coordenada destino) {
         String pontos = formatar(origem) + ";" + formatar(destino);
         List<TrajetoCandidato> rotas = consultarRotas(pontos, "alternatives=3");
@@ -44,7 +40,6 @@ public class MapaService {
         return rotas;
     }
 
-    // Rota obrigada a passar por um ponto de desvio
     public TrajetoCandidato buscarRotaPassandoPor(Coordenada origem, Coordenada via, Coordenada destino) {
         String pontos = formatar(origem) + ";" + formatar(via) + ";" + formatar(destino);
         List<TrajetoCandidato> rotas = consultarRotas(pontos, "alternatives=false&continue_straight=true");
@@ -56,7 +51,6 @@ public class MapaService {
         return rotas.get(0);
     }
 
-    // Busca de endereco (geocodificacao)
     public List<LocalEncontrado> geocodificar(String endereco) {
         if (endereco == null || endereco.trim().length() < 3) {
             throw new RegraNegocioException("Digite pelo menos 3 letras do endereço");
@@ -83,7 +77,6 @@ public class MapaService {
         }
     }
 
-    // primeiro resultado da busca, usado quando o usuario digita o endereco sem escolher da lista
     public LocalEncontrado localizar(String endereco) {
         List<LocalEncontrado> locais = geocodificar(endereco);
         if (locais.isEmpty()) {
@@ -122,7 +115,6 @@ public class MapaService {
     private TrajetoCandidato converter(JsonObject rota) {
         List<Coordenada> pontos = new ArrayList<Coordenada>();
 
-        // GeoJSON vem como [longitude, latitude]
         for (JsonElement ponto : rota.getAsJsonObject("geometry").getAsJsonArray("coordinates")) {
             JsonArray par = ponto.getAsJsonArray();
             pontos.add(new Coordenada(par.get(1).getAsDouble(), par.get(0).getAsDouble()));

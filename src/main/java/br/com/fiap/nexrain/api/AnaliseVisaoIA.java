@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.api;
 
-// resultado da leitura da imagem da camera (pela OpenAI ou pelo motor local)
 public class AnaliseVisaoIA {
 
     private boolean alagamentoDetectado;

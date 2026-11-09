@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.dto;
 
-// origem e destino podem vir como endereco (texto) ou ja com a coordenada clicada no mapa
 public class SolicitacaoRota {
 
     private String origem;

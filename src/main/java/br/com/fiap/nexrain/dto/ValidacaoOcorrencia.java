@@ -1,6 +1,5 @@
 package br.com.fiap.nexrain.dto;
 
-// acao do operador (Defesa Civil / CGE) sobre uma ocorrencia
 public class ValidacaoOcorrencia {
 
     private String acao;

@@ -2,7 +2,6 @@ package br.com.fiap.nexrain.entities;
 
 import java.util.Locale;
 
-// objeto de valor que representa um ponto no mapa (latitude / longitude)
 public class Coordenada {
 
     private static final double RAIO_TERRA_METROS = 6371000;
@@ -41,7 +40,6 @@ public class Coordenada {
                 && !(latitude == 0 && longitude == 0);
     }
 
-    // distancia real entre dois pontos (formula de Haversine)
     public double distanciaMetros(Coordenada outra) {
         double dLat = Math.toRadians(outra.latitude - latitude);
         double dLon = Math.toRadians(outra.longitude - longitude);
@@ -51,9 +49,7 @@ public class Coordenada {
         return RAIO_TERRA_METROS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // menor distancia entre este ponto e o trecho de rua que vai de "a" ate "b"
     public double distanciaAteSegmento(Coordenada a, Coordenada b) {
-        // projeta tudo num plano em metros usando este ponto como origem (suficiente pra distancias dentro da cidade)
         double[] pa = projetar(a);
         double[] pb = projetar(b);
 
@@ -65,7 +61,6 @@ public class Coordenada {
             return Math.hypot(pa[0], pa[1]);
         }
 
-        // t = posicao do ponto mais proximo dentro do segmento (0 = inicio, 1 = fim)
         double t = -(pa[0] * dx + pa[1] * dy) / comprimento2;
         t = Math.max(0, Math.min(1, t));
 
@@ -74,7 +69,6 @@ public class Coordenada {
         return Math.hypot(px, py);
     }
 
-    // anda "metros" a partir deste ponto na direcao informada (0 = norte, 90 = leste)
     public Coordenada deslocar(double metros, double direcaoGraus) {
         double direcao = Math.toRadians(direcaoGraus);
         double dLat = metros * Math.cos(direcao) / RAIO_TERRA_METROS;
@@ -82,7 +76,6 @@ public class Coordenada {
         return new Coordenada(latitude + Math.toDegrees(dLat), longitude + Math.toDegrees(dLon));
     }
 
-    // direcao (em graus) deste ponto ate o outro
     public double direcaoAte(Coordenada outra) {
         double[] p = projetar(outra);
         double graus = Math.toDegrees(Math.atan2(p[0], p[1]));

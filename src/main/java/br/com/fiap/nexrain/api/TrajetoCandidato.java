@@ -5,7 +5,6 @@ import br.com.fiap.nexrain.entities.Coordenada;
 import java.util.ArrayList;
 import java.util.List;
 
-// um caminho possivel devolvido pelo servico de rotas (OSRM)
 public class TrajetoCandidato {
 
     private String descricao;

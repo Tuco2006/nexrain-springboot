@@ -26,38 +26,32 @@ public class MonitoramentoController {
     private final ClimaService climaService = new ClimaService();
     private final MapaService mapaService = new MapaService();
 
-    // Analisar a imagem de uma camera (ou foto do cidadao) com visao computacional
     @PostMapping("/monitoramento/analises")
     public ResponseEntity<ResultadoAnaliseImagem> analisarRs(@RequestBody EntradaAnaliseImagem entrada) throws SQLException, ClassNotFoundException {
         ResultadoAnaliseImagem resultado = monitoramentoService.analisar(entrada);
         return ResponseEntity.status(resultado.getOcorrencia() != null ? 201 : 200).body(resultado);
     }
 
-    // Risco de alagamento de cada regiao (previsao real da Open-Meteo, ou temporal simulado)
     @GetMapping("/riscos")
     public ResponseEntity<List<RiscoRegiao>> riscosRs(@RequestParam(required = false, defaultValue = "false") boolean simulacao) throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(riscoService.calcularRiscos(simulacao));
     }
 
-    // Clima atual e previsao de chuva de um ponto do mapa
     @GetMapping("/clima")
     public ResponseEntity<PrevisaoClima> climaRs(@RequestParam double latitude, @RequestParam double longitude) {
         return ResponseEntity.ok(climaService.buscarPrevisao(latitude, longitude));
     }
 
-    // Busca de endereco
     @GetMapping("/geocodificacao")
     public ResponseEntity<List<LocalEncontrado>> geocodificarRs(@RequestParam String endereco) {
         return ResponseEntity.ok(mapaService.geocodificar(endereco));
     }
 
-    // Numeros do painel
     @GetMapping("/painel")
     public ResponseEntity<PainelResumo> painelRs() throws SQLException, ClassNotFoundException {
         return ResponseEntity.ok(riscoService.montarPainel());
     }
 
-    // Verificar se a API esta no ar
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> healthRs() {
         return ResponseEntity.ok(Map.of("status", "ok", "ia", monitoramentoService.iaConfigurada() ? "openai" : "motor-local"));

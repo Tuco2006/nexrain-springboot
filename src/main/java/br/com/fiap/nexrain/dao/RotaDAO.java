@@ -57,7 +57,6 @@ public class RotaDAO implements AutoCloseable {
         return linhas;
     }
 
-    // Update (usado quando a rota e recalculada)
     public int atualizar(Rota rota) throws SQLException {
         PreparedStatement stmt = minhaConexao.prepareStatement
                 ("Update T_FIAP_ROTA_NR set ORIGEM = ?, ORIGEM_LAT = ?, ORIGEM_LON = ?, DESTINO = ?, DESTINO_LAT = ?, DESTINO_LON = ?, " +
@@ -72,7 +71,6 @@ public class RotaDAO implements AutoCloseable {
         return linhas;
     }
 
-    // Select (historico sem o desenho do trajeto, que e pesado)
     public List<Rota> selecionar() throws SQLException {
         List<Rota> listaRotas = new ArrayList<Rota>();
         PreparedStatement stmt = minhaConexao.prepareStatement
@@ -88,7 +86,6 @@ public class RotaDAO implements AutoCloseable {
         return listaRotas;
     }
 
-    // Buscar por id (com o trajeto completo pra desenhar no mapa)
     public Rota buscarPorId(int id) throws SQLException {
         Rota rota = null;
 
@@ -149,7 +146,6 @@ public class RotaDAO implements AutoCloseable {
         return rota;
     }
 
-    // trajeto gravado no CLOB no formato "lat,lon;lat,lon;..."
     private String escreverTrajeto(List<Coordenada> pontos) {
         if (pontos == null || pontos.isEmpty()) {
             return null;
