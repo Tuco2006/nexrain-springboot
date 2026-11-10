@@ -42,7 +42,10 @@ levar cerca de um minuto.
 Rodar o arquivo `script.sql` inteiro **como script** conectado ao Oracle da FIAP: no DBeaver `Alt+X`, no SQL Developer `F5`
 (não use `Ctrl+Enter`, que executa um comando só)
 (`oracle.fiap.com.br:1521:orcl`). Ele cria as 5 tabelas e já cadastra 12 regiões de São Paulo, 8 câmeras,
-4 ocorrências e 2 alertas de exemplo.
+4 ocorrências e 2 alertas de exemplo. São 18 câmeras: 10 com imagem ao vivo das câmeras públicas da CET-SP
+(cameras.cetsp.com.br) e 8 com fotos de enchentes reais para demonstrar a detecção.
+
+Se o banco já foi criado com uma versão anterior do script, rode só o `cameras_ao_vivo.sql` para incluir as câmeras ao vivo.
 
 Para recriar o banco do zero, rode antes o `drop.sql` (que apaga as tabelas) e depois o `script.sql` de novo.
 

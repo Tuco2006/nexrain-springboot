@@ -59,6 +59,9 @@ public class MonitoramentoService {
             if (vazio(url)) {
                 throw new RegraNegocioException("Envie uma imagem ou escolha uma câmera com imagem cadastrada");
             }
+            if (camera != null && !camera.aceitaImagem(url)) {
+                throw new RegraNegocioException("A imagem informada não pertence à câmera " + camera.getNome());
+            }
             if (!url.startsWith("http")) {
                 throw new RegraNegocioException("A URL da imagem deve começar com http ou https");
             }

@@ -11,13 +11,16 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
 public class VisaoComputacionalService {
 
     private final static int LARGURA_ANALISE = 160;
 
-    private final static double LIMIAR_ALAGAMENTO = 0.12;
+    private final static double LIMIAR_ALAGAMENTO = 0.16;
 
     private final OpenAiService openAiService = new OpenAiService();
 
@@ -55,6 +58,7 @@ public class VisaoComputacionalService {
         }
 
         int inicioRua = (int) (altura * 0.40);
+        double brilhoChao = medianaBrilhoAsfalto(imagem, luz, inicioRua) / 255.0;
         int total = 0, barrenta = 0, reflexo = 0;
         float[] hsv = new float[3];
 
@@ -87,7 +91,7 @@ public class VisaoComputacionalService {
 
                 if (matiz >= 15 && matiz <= 55 && saturacao >= 0.12 && saturacao <= 0.75 && brilho >= 0.2 && brilho <= 0.9) {
                     barrenta++;
-                } else if (saturacao < 0.22 && brilho > 0.5) {
+                } else if (saturacao < 0.22 && brilho > 0.5 && (brilho > brilhoChao * 1.35 || brilho > 0.8)) {
                     reflexo++;
                 }
             }
@@ -95,28 +99,28 @@ public class VisaoComputacionalService {
 
         double proporcaoBarrenta = total > 0 ? (double) barrenta / total : 0;
         double proporcaoReflexo = total > 0 ? (double) reflexo / total : 0;
-        double indiceAgua = proporcaoBarrenta + proporcaoReflexo * 1.6;
+        double indiceAgua = proporcaoBarrenta * 0.9 + proporcaoReflexo * 2.0;
 
         AnaliseVisaoIA analise = new AnaliseVisaoIA();
         analise.setOrigem("motor-local");
 
         if (indiceAgua >= LIMIAR_ALAGAMENTO) {
-            int nivelAgua = (int) Math.min(90, Math.round(indiceAgua * 110));
+            int nivelAgua = (int) Math.min(90, Math.round(indiceAgua * 105));
             analise.setAlagamentoDetectado(true);
             analise.setNivelAguaEstimadoCm(nivelAgua);
             analise.setNivelRisco(MonitorRisco.classificarPorNivelAgua(nivelAgua));
             analise.setConfianca(Math.min(85, Math.round(50 + indiceAgua * 60)));
             analise.setViaTransitavel(nivelAgua < 30);
             analise.setDescricao(String.format("Motor local encontrou %.0f%% da área da via com aspecto de água acumulada " +
-                            "(%.0f%% de água barrenta e %.0f%% de reflexo de lâmina d'água).",
-                    Math.min(100, indiceAgua * 100), proporcaoBarrenta * 100, proporcaoReflexo * 100));
+                            "(%.0f%% de água barrenta e %.0f%% de reflexo de lâmina d'água; índice %.2f).",
+                    Math.min(100, indiceAgua * 100), proporcaoBarrenta * 100, proporcaoReflexo * 100, indiceAgua));
         } else {
             analise.setAlagamentoDetectado(false);
             analise.setNivelAguaEstimadoCm(0);
             analise.setNivelRisco("BAIXO");
             analise.setConfianca(Math.min(85, Math.round(50 + (LIMIAR_ALAGAMENTO - indiceAgua) * 300)));
             analise.setViaTransitavel(true);
-            analise.setDescricao("Motor local não encontrou sinais de água acumulada na via.");
+            analise.setDescricao(String.format("Motor local não encontrou sinais de água acumulada na via (índice de água %.2f, limite %.2f).", indiceAgua, LIMIAR_ALAGAMENTO));
         }
         return analise;
     }
@@ -133,6 +137,25 @@ public class VisaoComputacionalService {
             analise.setDescricao("");
         }
         return analise;
+    }
+
+    private double medianaBrilhoAsfalto(BufferedImage imagem, double[][] luz, int inicio) {
+        List<Double> valores = new ArrayList<Double>();
+        float[] hsv = new float[3];
+        for (int y = inicio; y < luz.length; y++) {
+            for (int x = 0; x < luz[y].length; x++) {
+                int rgb = imagem.getRGB(x, y);
+                Color.RGBtoHSB((rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff, hsv);
+                if (hsv[1] < 0.25) {
+                    valores.add(luz[y][x]);
+                }
+            }
+        }
+        if (valores.isEmpty()) {
+            return 128;
+        }
+        Collections.sort(valores);
+        return valores.get(valores.size() / 2);
     }
 
     private BufferedImage lerImagem(byte[] imagem) {

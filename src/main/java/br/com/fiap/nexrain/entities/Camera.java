@@ -1,5 +1,7 @@
 package br.com.fiap.nexrain.entities;
 
+import java.util.regex.Pattern;
+
 public class Camera {
 
     private int id;
@@ -93,6 +95,27 @@ public class Camera {
 
     public boolean ativa() {
         return "ATIVA".equals(status);
+    }
+
+    public boolean isAoVivo() {
+        return urlImagem != null && urlImagem.matches("https://cameras\\.cetsp\\.com\\.br/cams/\\d+/\\d+\\.jpg");
+    }
+
+    public String getUrlAoVivo() {
+        if (!isAoVivo()) {
+            return null;
+        }
+        return urlImagem.substring(0, urlImagem.lastIndexOf('/') + 1);
+    }
+
+    public boolean aceitaImagem(String url) {
+        if (url == null) {
+            return false;
+        }
+        if (url.equals(urlImagem)) {
+            return true;
+        }
+        return isAoVivo() && url.matches(Pattern.quote(getUrlAoVivo()) + "\\d+\\.jpg(\\?\\d+)?");
     }
 
     @Override
